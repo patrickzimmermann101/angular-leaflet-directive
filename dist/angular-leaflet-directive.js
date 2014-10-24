@@ -16,7 +16,7 @@ angular.module("leaflet-directive", []).directive('leaflet', ["$q", "leafletData
             legend         : '=legend',
             geojson        : '=geojson',
             paths          : '=paths',
-            tiles          : '=tiles',
+            leaflettiles         : '=leaflettiles',
             layers         : '=layers',
             controls       : '=controls',
             decorations    : '=decorations',
@@ -97,7 +97,7 @@ angular.module("leaflet-directive", []).directive('leaflet', ["$q", "leafletData
             }
 
             // If no layers nor tiles defined, set the default tileLayer
-            if (!isDefined(attrs.tiles) && (!isDefined(attrs.layers))) {
+            if (!isDefined(attrs.leaflettiles) && (!isDefined(attrs.layers))) {
                 var tileLayerObj = L.tileLayer(defaults.tileLayer, defaults.tileLayerOptions);
                 tileLayerObj.addTo(map);
                 leafletData.setTiles(tileLayerObj, attrs.id);
@@ -142,8 +142,8 @@ angular.module("leaflet-directive", []).directive('leaflet', ["$q", "leafletData
                 leafletData.unresolveMap(attrs.id);
             });
 
-            //Handle request to invalidate the map size 
-	        //Up scope using $scope.$emit('invalidateSize') 
+            //Handle request to invalidate the map size
+	        //Up scope using $scope.$emit('invalidateSize')
 	        //Down scope using $scope.$broadcast('invalidateSize')
             scope.$on('invalidateSize', function() {
                 map.invalidateSize();
@@ -340,7 +340,7 @@ angular.module("leaflet-directive").directive('center',
     };
 }]);
 
-angular.module("leaflet-directive").directive('tiles', ["$log", "leafletData", "leafletMapDefaults", "leafletHelpers", function ($log, leafletData, leafletMapDefaults, leafletHelpers) {
+angular.module("leaflet-directive").directive('leaflettiles', ["$log", "leafletData", "leafletMapDefaults", "leafletHelpers", function ($log, leafletData, leafletMapDefaults, leafletHelpers) {
     return {
         restrict: "A",
         scope: false,
@@ -350,9 +350,9 @@ angular.module("leaflet-directive").directive('tiles', ["$log", "leafletData", "
         link: function(scope, element, attrs, controller) {
             var isDefined = leafletHelpers.isDefined,
                 leafletScope  = controller.getLeafletScope(),
-                tiles = leafletScope.tiles;
+                $tiles = leafletScope.leaflettiles;
 
-            if (!isDefined(tiles) && !isDefined(tiles.url)) {
+            if (!isDefined($tiles) && !isDefined($tiles.url)) {
                 $log.warn("[AngularJS - Leaflet] The 'tiles' definition doesn't have the 'url' property.");
                 return;
             }
@@ -360,24 +360,24 @@ angular.module("leaflet-directive").directive('tiles', ["$log", "leafletData", "
             controller.getMap().then(function(map) {
                 var defaults = leafletMapDefaults.getDefaults(attrs.id);
                 var tileLayerObj;
-                leafletScope.$watch("tiles", function(tiles) {
+                leafletScope.$watch("leaflettiles", function($tiles) {
                     var tileLayerOptions = defaults.tileLayerOptions;
                     var tileLayerUrl = defaults.tileLayer;
 
                     // If no valid tiles are in the scope, remove the last layer
-                    if (!isDefined(tiles.url) && isDefined(tileLayerObj)) {
+                    if (!isDefined($tiles.url) && isDefined(tileLayerObj)) {
                         map.removeLayer(tileLayerObj);
                         return;
                     }
 
                     // No leafletTiles object defined yet
                     if (!isDefined(tileLayerObj)) {
-                        if (isDefined(tiles.options)) {
-                            angular.copy(tiles.options, tileLayerOptions);
+                        if (isDefined($tiles.options)) {
+                            angular.copy($tiles.options, tileLayerOptions);
                         }
 
-                        if (isDefined(tiles.url)) {
-                            tileLayerUrl = tiles.url;
+                        if (isDefined($tiles.url)) {
+                            tileLayerUrl = $tiles.url;
                         }
 
                         tileLayerObj = L.tileLayer(tileLayerUrl, tileLayerOptions);
@@ -387,11 +387,11 @@ angular.module("leaflet-directive").directive('tiles', ["$log", "leafletData", "
                     }
 
                     // If the options of the tilelayer is changed, we need to redraw the layer
-                    if (isDefined(tiles.url) && isDefined(tiles.options) && !angular.equals(tiles.options, tileLayerOptions)) {
+                    if (isDefined($tiles.url) && isDefined($tiles.options) && !angular.equals($tiles.options, tileLayerOptions)) {
                         map.removeLayer(tileLayerObj);
                         tileLayerOptions = defaults.tileLayerOptions;
-                        angular.copy(tiles.options, tileLayerOptions);
-                        tileLayerUrl = tiles.url;
+                        angular.copy($tiles.options, tileLayerOptions);
+                        tileLayerUrl = $tiles.url;
                         tileLayerObj = L.tileLayer(tileLayerUrl, tileLayerOptions);
                         tileLayerObj.addTo(map);
                         leafletData.setTiles(tileLayerObj, attrs.id);
@@ -399,8 +399,8 @@ angular.module("leaflet-directive").directive('tiles', ["$log", "leafletData", "
                     }
 
                     // Only the URL of the layer is changed, update the tiles object
-                    if (isDefined(tiles.url)) {
-                        tileLayerObj.setUrl(tiles.url);
+                    if (isDefined($tiles.url)) {
+                        tileLayerObj.setUrl($tiles.url);
                     }
                 }, true);
             });
@@ -1542,7 +1542,7 @@ angular.module("leaflet-directive").service('leafletData', ["$log", "$q", "leafl
         setResolvedDefer = leafletHelpers.setResolvedDefer;
 
     var maps = {};
-    var tiles = {};
+    var leaflettiles = {};
     var layers = {};
     var paths = {};
     var markers = {};
@@ -1598,26 +1598,26 @@ angular.module("leaflet-directive").service('leafletData', ["$log", "$q", "leafl
         defer.resolve(leafletLayers);
         setResolvedDefer(layers, scopeId);
     };
-    
+
     this.getUTFGrid = function(scopeId) {
         var defer = getDefer(utfGrid, scopeId);
         return defer.promise;
     };
-    
+
     this.setUTFGrid = function(leafletUTFGrid, scopeId) {
         var defer = getUnresolvedDefer(utfGrid, scopeId);
         defer.resolve(leafletUTFGrid);
         setResolvedDefer(utfGrid, scopeId);
     };
 
-    this.setTiles = function(leafletTiles, scopeId) {
-        var defer = getUnresolvedDefer(tiles, scopeId);
-        defer.resolve(leafletTiles);
-        setResolvedDefer(tiles, scopeId);
+    this.setTiles = function(llTiles, scopeId) {
+        var defer = getUnresolvedDefer(leaflettiles, scopeId);
+        defer.resolve(llTiles);
+        setResolvedDefer(leaflettiles, scopeId);
     };
 
     this.getTiles = function(scopeId) {
-        var defer = getDefer(tiles, scopeId);
+        var defer = getDefer(leaflettiles, scopeId);
         return defer.promise;
     };
 

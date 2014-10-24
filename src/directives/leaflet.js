@@ -12,7 +12,7 @@ angular.module("leaflet-directive", []).directive('leaflet', function ($q, leafl
             legend         : '=legend',
             geojson        : '=geojson',
             paths          : '=paths',
-            tiles          : '=tiles',
+            leaflettiles         : '=leaflettiles',
             layers         : '=layers',
             controls       : '=controls',
             decorations    : '=decorations',
@@ -93,7 +93,7 @@ angular.module("leaflet-directive", []).directive('leaflet', function ($q, leafl
             }
 
             // If no layers nor tiles defined, set the default tileLayer
-            if (!isDefined(attrs.tiles) && (!isDefined(attrs.layers))) {
+            if (!isDefined(attrs.leaflettiles) && (!isDefined(attrs.layers))) {
                 var tileLayerObj = L.tileLayer(defaults.tileLayer, defaults.tileLayerOptions);
                 tileLayerObj.addTo(map);
                 leafletData.setTiles(tileLayerObj, attrs.id);
@@ -138,8 +138,8 @@ angular.module("leaflet-directive", []).directive('leaflet', function ($q, leafl
                 leafletData.unresolveMap(attrs.id);
             });
 
-            //Handle request to invalidate the map size 
-	        //Up scope using $scope.$emit('invalidateSize') 
+            //Handle request to invalidate the map size
+	        //Up scope using $scope.$emit('invalidateSize')
 	        //Down scope using $scope.$broadcast('invalidateSize')
             scope.$on('invalidateSize', function() {
                 map.invalidateSize();

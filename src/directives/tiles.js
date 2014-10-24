@@ -1,4 +1,4 @@
-angular.module("leaflet-directive").directive('tiles', function ($log, leafletData, leafletMapDefaults, leafletHelpers) {
+angular.module("leaflet-directive").directive('leaflettiles', function ($log, leafletData, leafletMapDefaults, leafletHelpers) {
     return {
         restrict: "A",
         scope: false,
@@ -8,9 +8,9 @@ angular.module("leaflet-directive").directive('tiles', function ($log, leafletDa
         link: function(scope, element, attrs, controller) {
             var isDefined = leafletHelpers.isDefined,
                 leafletScope  = controller.getLeafletScope(),
-                tiles = leafletScope.tiles;
+                $tiles = leafletScope.leaflettiles;
 
-            if (!isDefined(tiles) && !isDefined(tiles.url)) {
+            if (!isDefined($tiles) && !isDefined($tiles.url)) {
                 $log.warn("[AngularJS - Leaflet] The 'tiles' definition doesn't have the 'url' property.");
                 return;
             }
@@ -18,24 +18,24 @@ angular.module("leaflet-directive").directive('tiles', function ($log, leafletDa
             controller.getMap().then(function(map) {
                 var defaults = leafletMapDefaults.getDefaults(attrs.id);
                 var tileLayerObj;
-                leafletScope.$watch("tiles", function(tiles) {
+                leafletScope.$watch("leaflettiles", function($tiles) {
                     var tileLayerOptions = defaults.tileLayerOptions;
                     var tileLayerUrl = defaults.tileLayer;
 
                     // If no valid tiles are in the scope, remove the last layer
-                    if (!isDefined(tiles.url) && isDefined(tileLayerObj)) {
+                    if (!isDefined($tiles.url) && isDefined(tileLayerObj)) {
                         map.removeLayer(tileLayerObj);
                         return;
                     }
 
                     // No leafletTiles object defined yet
                     if (!isDefined(tileLayerObj)) {
-                        if (isDefined(tiles.options)) {
-                            angular.copy(tiles.options, tileLayerOptions);
+                        if (isDefined($tiles.options)) {
+                            angular.copy($tiles.options, tileLayerOptions);
                         }
 
-                        if (isDefined(tiles.url)) {
-                            tileLayerUrl = tiles.url;
+                        if (isDefined($tiles.url)) {
+                            tileLayerUrl = $tiles.url;
                         }
 
                         tileLayerObj = L.tileLayer(tileLayerUrl, tileLayerOptions);
@@ -45,11 +45,11 @@ angular.module("leaflet-directive").directive('tiles', function ($log, leafletDa
                     }
 
                     // If the options of the tilelayer is changed, we need to redraw the layer
-                    if (isDefined(tiles.url) && isDefined(tiles.options) && !angular.equals(tiles.options, tileLayerOptions)) {
+                    if (isDefined($tiles.url) && isDefined($tiles.options) && !angular.equals($tiles.options, tileLayerOptions)) {
                         map.removeLayer(tileLayerObj);
                         tileLayerOptions = defaults.tileLayerOptions;
-                        angular.copy(tiles.options, tileLayerOptions);
-                        tileLayerUrl = tiles.url;
+                        angular.copy($tiles.options, tileLayerOptions);
+                        tileLayerUrl = $tiles.url;
                         tileLayerObj = L.tileLayer(tileLayerUrl, tileLayerOptions);
                         tileLayerObj.addTo(map);
                         leafletData.setTiles(tileLayerObj, attrs.id);
@@ -57,8 +57,8 @@ angular.module("leaflet-directive").directive('tiles', function ($log, leafletDa
                     }
 
                     // Only the URL of the layer is changed, update the tiles object
-                    if (isDefined(tiles.url)) {
-                        tileLayerObj.setUrl(tiles.url);
+                    if (isDefined($tiles.url)) {
+                        tileLayerObj.setUrl($tiles.url);
                     }
                 }, true);
             });

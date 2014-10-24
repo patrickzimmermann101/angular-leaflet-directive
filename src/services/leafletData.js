@@ -4,7 +4,7 @@ angular.module("leaflet-directive").service('leafletData', function ($log, $q, l
         setResolvedDefer = leafletHelpers.setResolvedDefer;
 
     var maps = {};
-    var tiles = {};
+    var leaflettiles = {};
     var layers = {};
     var paths = {};
     var markers = {};
@@ -60,26 +60,26 @@ angular.module("leaflet-directive").service('leafletData', function ($log, $q, l
         defer.resolve(leafletLayers);
         setResolvedDefer(layers, scopeId);
     };
-    
+
     this.getUTFGrid = function(scopeId) {
         var defer = getDefer(utfGrid, scopeId);
         return defer.promise;
     };
-    
+
     this.setUTFGrid = function(leafletUTFGrid, scopeId) {
         var defer = getUnresolvedDefer(utfGrid, scopeId);
         defer.resolve(leafletUTFGrid);
         setResolvedDefer(utfGrid, scopeId);
     };
 
-    this.setTiles = function(leafletTiles, scopeId) {
-        var defer = getUnresolvedDefer(tiles, scopeId);
-        defer.resolve(leafletTiles);
-        setResolvedDefer(tiles, scopeId);
+    this.setTiles = function(llTiles, scopeId) {
+        var defer = getUnresolvedDefer(leaflettiles, scopeId);
+        defer.resolve(llTiles);
+        setResolvedDefer(leaflettiles, scopeId);
     };
 
     this.getTiles = function(scopeId) {
-        var defer = getDefer(tiles, scopeId);
+        var defer = getDefer(leaflettiles, scopeId);
         return defer.promise;
     };
 

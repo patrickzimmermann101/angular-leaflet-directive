@@ -22,7 +22,7 @@ describe('Directive: leaflet', function() {
 
     it('should set default tiles if bad tiles structure is provided', function() {
         angular.extend(scope, { tiles: {} });
-        var element = angular.element('<leaflet tiles="tiles"></leaflet>');
+        var element = angular.element('<leaflet leaflettiles="tiles"></leaflet>');
         element = $compile(element)(scope);
         leafletData.getTiles().then(function(leafletTiles) {
             var defaults = leafletMapDefaults.getDefaults();
@@ -35,7 +35,7 @@ describe('Directive: leaflet', function() {
             url: "http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png"
         };
         angular.extend(scope, { tiles: tiles });
-        var element = angular.element('<leaflet tiles="tiles"></leaflet>');
+        var element = angular.element('<leaflet leaflettiles="tiles"></leaflet>');
         element = $compile(element)(scope);
         var leafletTiles;
         leafletData.getTiles().then(function(tiles) {
@@ -53,7 +53,7 @@ describe('Directive: leaflet', function() {
             url: "http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png"
         };
         angular.extend(scope, { tiles: tiles });
-        var element = angular.element('<leaflet tiles="tiles"></leaflet>');
+        var element = angular.element('<leaflet leaflettiles="tiles"></leaflet>');
         element = $compile(element)(scope);
 
         var leafletMap;
@@ -83,7 +83,7 @@ describe('Directive: leaflet', function() {
             url: "http://{s}.tile.opencyclemap.org/cycle/{z}/{x}/{y}.png"
         };
         angular.extend(scope, { tiles: tiles });
-        var element = angular.element('<leaflet tiles="tiles"></leaflet>');
+        var element = angular.element('<leaflet leaflettiles="tiles"></leaflet>');
         element = $compile(element)(scope);
 
         var leafletMap;
